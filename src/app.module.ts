@@ -8,7 +8,6 @@ import { AlbumsModule } from './entities/albums/albums.module';
 import { ArtistsModule } from './entities/artists/artists.module';
 import { TracksModule } from './entities/tracks/tracks.module';
 import { FavoritesModule } from './entities/favorites/favorites.module';
-import { SharedModule } from './shared/shared.module';
 
 @Module({
   imports: [
@@ -21,7 +20,6 @@ import { SharedModule } from './shared/shared.module';
     ArtistsModule,
     TracksModule,
     FavoritesModule,
-    SharedModule,
   ],
   controllers: [AppController],
   providers: [AppService],

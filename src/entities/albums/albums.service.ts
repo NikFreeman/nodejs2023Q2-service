@@ -12,20 +12,6 @@ export class AlbumsService {
         ...createAlbumDto,
       },
     });
-
-    // const id = this.helperService.getUUID();
-    // const artist = StoreService.artists.filter(
-    //   (item) => item.id == createAlbumDto.artistId,
-    // );
-
-    // const artistId = artist.length == 1 ? createAlbumDto.artistId : null;
-    // const createAlbum: IAlbum = new Album({
-    //   id: id,
-    //   name: createAlbumDto.name,
-    //   year: createAlbumDto.year,
-    //   artistId: artistId,
-    // });
-    // StoreService.albums.push(createAlbum);
     return createdAlbum;
   }
 
@@ -34,34 +20,19 @@ export class AlbumsService {
   }
 
   async findOne(id: string) {
-    const album = await this.prisma.album.findUnique({ where: { id: id } });
-    return album;
+    return await this.prisma.album.findUnique({ where: { id: id } });
   }
 
   async update(id: string, updateAlbumDto: UpdateAlbumDto) {
-    const album = await this.findOne(id);
-    if (!album) return false;
     const updatedAlbum = await this.prisma.album.update({
       where: { id: id },
       data: { ...updateAlbumDto },
     });
-    // const { name, year, artistId } = updateAlbumDto;
-    // const artist = StoreService.artists.filter((item) => item.id == artistId);
-    // const updateArtistId = artist.length == 1 ? artistId : null;
-    // const updatedAlbum: IAlbum = {
-    //   id,
-    //   name: name || StoreService.albums[index].name,
-    //   year: year !== undefined ? year : StoreService.albums[index].year,
-    //   artistId: updateArtistId,
-    // };
-
-    // StoreService.albums[index] = updatedAlbum;
     return updatedAlbum;
   }
 
   async remove(id: string) {
     await this.prisma.album.delete({ where: { id: id } });
-
     return;
   }
 }

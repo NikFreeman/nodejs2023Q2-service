@@ -223,12 +223,11 @@ export class UsersController {
     )
     id: string,
   ) {
-    const user = await this.usersService.findOne(id);
+    const resultRemove = await this.usersService.remove(id);
 
-    if (!user) {
+    if (!resultRemove) {
       throw new NotFoundException(HttpStatus.NOT_FOUND, 'User not found');
     }
-
-    this.usersService.remove(id);
+    return;
   }
 }

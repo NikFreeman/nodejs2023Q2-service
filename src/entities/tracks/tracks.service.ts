@@ -10,23 +10,6 @@ export class TracksService {
     const createdTrack = await this.prisma.track.create({
       data: { ...createTrackDto },
     });
-    // const id = this.helperService.getUUID();
-    // const artist = StoreService.artists.filter(
-    //   (item) => item.id == createTrackDto.artistId,
-    // );
-    // const artistId = artist.length > 0 ? createTrackDto.artistId : null;
-    // const album = StoreService.albums.filter(
-    //   (item) => item.id == createTrackDto.albumId,
-    // );
-    // const albumId = album.length > 0 ? createTrackDto.albumId : null;
-    // const createTrack: ITrack = new Track({
-    //   id: id,
-    //   name: createTrackDto.name,
-    //   albumId: albumId,
-    //   artistId: artistId,
-    //   duration: createTrackDto.duration,
-    // });
-    // StoreService.tracks.push(createTrack);
     return createdTrack;
   }
 
@@ -35,18 +18,19 @@ export class TracksService {
   }
 
   async findOne(id: string) {
-    const track = await this.prisma.track.findUnique({ where: { id: id } });
-    return track;
+    return await this.prisma.track.findUnique({ where: { id: id } });
   }
 
   async update(id: string, updateTrackDto: UpdateTrackDto) {
-    const track = await this.findOne(id);
-    if (!track) return false;
-    const updatedTrack = await this.prisma.track.update({
-      where: { id: id },
-      data: { ...updateTrackDto },
-    });
-    return updatedTrack;
+    try {
+      const updatedTrack = await this.prisma.track.update({
+        where: { id: id },
+        data: { ...updateTrackDto },
+      });
+      return updatedTrack;
+    } catch {
+      return false;
+    }
   }
 
   async remove(id: string) {

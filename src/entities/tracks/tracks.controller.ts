@@ -11,6 +11,8 @@ import {
   BadRequestException,
   NotFoundException,
   HttpCode,
+  ValidationPipe,
+  UsePipes,
 } from '@nestjs/common';
 import { TracksService } from './tracks.service';
 import { CreateTrackDto } from './dto/create-track.dto';
@@ -150,6 +152,7 @@ export class TracksController {
   @ApiNotFoundResponse({
     description: 'Track was not found',
   })
+  @UsePipes(ValidationPipe)
   async update(
     @Param(
       'id',
@@ -169,7 +172,11 @@ export class TracksController {
     if (!track) {
       throw new NotFoundException('Track not found');
     }
-    return await this.tracksService.update(id, updateTrackDto);
+    const updatedTrack = await this.tracksService.update(id, updateTrackDto);
+    if (!updatedTrack) {
+      throw new BadRequestException('Bad request. UpdateTrackDto is invalid');
+    }
+    return updatedTrack;
   }
 
   @Delete(':id')
