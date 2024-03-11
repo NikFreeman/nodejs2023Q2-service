@@ -8,10 +8,7 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    private readonly helperService: HelpersService,
-    storeService: StoreService,
-  ) {}
+  constructor(private readonly helperService: HelpersService) {}
 
   async create(createUserDto: CreateUserDto) {
     const id = this.helperService.getUUID();
