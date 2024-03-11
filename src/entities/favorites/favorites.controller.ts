@@ -23,7 +23,6 @@ import {
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { Entity } from 'src/interfaces/favorite';
-import { Favorite } from './entities/favorite.entity';
 @ApiTags('Favorites')
 @Controller('favs')
 export class FavoritesController {
