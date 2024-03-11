@@ -18,7 +18,6 @@ import { UpdateArtistDto } from './dto/update-artist.dto';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
-  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
