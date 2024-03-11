@@ -1,33 +1,38 @@
 import { IUser } from 'src/interfaces/user';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { IsInt, IsString } from 'class-validator';
+import { IsInt, IsString, IsUUID } from 'class-validator';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Exclude } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 
 export class User implements IUser {
-  @ApiProperty({ description: 'User identifier', nullable: false })
-  @IsString()
+  @ApiProperty({
+    description: 'User identifier',
+    format: 'uuid',
+  })
+  @IsUUID(4)
   id: string;
-  @ApiProperty({ description: 'User login', nullable: false })
+  @ApiProperty({ description: 'User login', example: 'Test user' })
   @IsString()
   login: string;
-  @ApiProperty({ description: 'User password', nullable: false })
+  @ApiHideProperty()
   @IsString()
   @Exclude()
   password: string;
-  @ApiProperty({ description: 'User version', nullable: false })
+  @ApiProperty({ description: 'User version', required: false, example: '1' })
   @IsInt()
   version: number;
   @ApiProperty({
     description: 'Timestamp create User account',
-    nullable: false,
+    required: false,
+    example: '1655000000',
   })
   @IsInt()
   createdAt: number;
   @ApiProperty({
     description: 'Timestamp update User account',
-    nullable: false,
+    required: false,
+    example: '1655000000',
   })
   @IsInt()
   updatedAt: number;

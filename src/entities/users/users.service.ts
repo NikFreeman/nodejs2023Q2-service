@@ -1,42 +1,45 @@
+import { StoreService } from './../../shared/store/store.service';
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { IUser } from 'src/interfaces/user';
-import { getUUID } from 'src/helpers/getUuid';
-import { getTimestamp } from 'src/helpers/getTimestamp';
+import { HelpersService } from 'src/shared/helpers/helpers.service';
 import { User } from './entities/user.entity';
-import { validate } from 'class-validator';
 
 @Injectable()
 export class UsersService {
-  private _users: IUser[] = [];
+  constructor(
+    private readonly helperService: HelpersService,
+    storeService: StoreService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
+    const id = this.helperService.getUUID();
+    const timestamp = this.helperService.getTimestamp();
     const user: IUser = new User({
-      id: getUUID(),
+      id: id,
       version: 1,
-      createdAt: getTimestamp(),
-      updatedAt: 0,
+      createdAt: timestamp,
+      updatedAt: timestamp,
       ...createUserDto,
     });
-    const errors = await validate(user);
-    this._users.push(user);
+    StoreService.users.push(user);
     return user;
   }
 
   findAll() {
-    return this._users;
+    return StoreService.users;
   }
 
   findOne(id: string) {
-    return this._users.filter((user) => user.id == id);
+    const [user] = StoreService.users.filter((user) => user.id == id);
+    return user;
   }
 
   update(id: string, updateUserDto: UpdateUserDto) {
-    const index = this._users.findIndex((user) => (user.id = id));
-
-    if (index === -1) return;
-    const { login, password, version, createdAt } = this._users[index];
+    const index = StoreService.users.findIndex((user) => user.id == id);
+    if (index == -1) return false;
+    const { login, password, version, createdAt } = StoreService.users[index];
     const { oldPassword, newPassword } = updateUserDto;
     if (password == oldPassword) {
       const user: IUser = new User({
@@ -44,16 +47,17 @@ export class UsersService {
         login: login,
         version: version + 1,
         createdAt: createdAt,
-        updatedAt: getTimestamp(),
+        updatedAt: this.helperService.getTimestamp(),
         password: newPassword,
       });
-      this._users[index] = user;
+      StoreService.users[index] = user;
       return user;
     }
-    return;
+    return false;
   }
 
   remove(id: string) {
-    return (this._users = this._users.filter((user) => user.id != id));
+    StoreService.users = StoreService.users.filter((user) => user.id != id);
+    return;
   }
 }
