@@ -48,7 +48,7 @@ export class FavoritesController {
     id: string,
   ) {
     const entitys = ['track', 'album', 'artist'];
-    console.log(entity, !entitys.includes(entity));
+
     if (!entitys.includes(entity)) {
       throw new UnprocessableEntityException('Bad request. Entity not defined');
     }
@@ -76,7 +76,7 @@ export class FavoritesController {
     id: string,
   ) {
     const entitys = ['track', 'album', 'artist'];
-    console.log(entity, !entitys.includes(entity));
+
     if (!entitys.includes(entity)) {
       throw new NotFoundException('Bad request. Entity not defined');
     }

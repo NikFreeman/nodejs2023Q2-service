@@ -36,7 +36,7 @@ To run all tests without authorization
 ```
 npm run test
 ```
-
+npm run test:not-auth
 To run only one of all test suites
 
 ```

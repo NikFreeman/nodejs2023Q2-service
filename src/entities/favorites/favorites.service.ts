@@ -57,14 +57,12 @@ export class FavoritesService {
         const track = StoreService.favorites.tracks.filter(
           (track) => track == id,
         );
-
         if (track.length == 0) return false;
-
         StoreService.favorites.tracks = StoreService.favorites.tracks.filter(
           (track) => track != id,
         );
-        console.log('after', StoreService.favorites.tracks);
         return true;
+
       case 'album':
         const album = StoreService.favorites.albums.filter(
           (album) => album == id,
@@ -74,6 +72,7 @@ export class FavoritesService {
           (album) => album != id,
         );
         return true;
+
       case 'artist':
         const artist = StoreService.favorites.artists.filter(
           (artist) => artist == id,
