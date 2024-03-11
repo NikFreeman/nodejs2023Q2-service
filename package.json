@@ -15,7 +15,7 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest --testPathIgnorePatterns refresh.e2e.spec.ts --noStackTrace --runInBand",
-    "test:once":"jest --testPathIgnorePatterns refresh.e2e.spec.ts --noStackTrace --runInBand -i test/users.e2e.spec.ts -t put --timeout=0",
+    "test:once":"jest --testPathIgnorePatterns refresh.e2e.spec.ts --noStackTrace --runInBand -i test/artists.e2e.spec.ts --timeout=0",
     "test:auth": "cross-env TEST_MODE=auth jest --testPathIgnorePatterns refresh.e2e.spec.ts --noStackTrace --runInBand",
     "test:refresh": "cross-env TEST_MODE=auth jest --testPathPattern refresh.e2e.spec.ts --noStackTrace --runInBand",
     "test:watch": "jest --watch",
