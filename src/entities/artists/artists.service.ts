@@ -8,10 +8,7 @@ import { Artist } from './entities/artist.entity';
 
 @Injectable()
 export class ArtistsService {
-  constructor(
-    private readonly helperService: HelpersService,
-    storeService: StoreService,
-  ) {}
+  constructor(private readonly helperService: HelpersService) {}
   create(createArtistDto: CreateArtistDto) {
     const id = this.helperService.getUUID();
     const artist: IArtist = new Artist({
@@ -50,6 +47,12 @@ export class ArtistsService {
     StoreService.artists = StoreService.artists.filter(
       (artist) => artist.id != id,
     );
+    StoreService.albums.forEach((album) => {
+      if (album.artistId == id) album.artistId = null;
+    });
+    StoreService.tracks.forEach((track) => {
+      if (track.artistId == id) track.artistId = null;
+    });
     return;
   }
 }
