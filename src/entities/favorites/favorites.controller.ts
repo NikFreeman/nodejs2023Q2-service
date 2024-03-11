@@ -13,8 +13,17 @@ import {
   ParseEnumPipe,
 } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 import { Entity } from 'src/interfaces/favorite';
+import { Favorite } from './entities/favorite.entity';
 @ApiTags('Favorites')
 @Controller('favs')
 export class FavoritesController {
@@ -24,13 +33,48 @@ export class FavoritesController {
   @ApiOperation({
     summary: 'Get favorites list',
   })
+  @ApiOkResponse({
+    description: 'Successful operation',
+    schema: {
+      type: 'object',
+      properties: {
+        artists: {
+          type: 'array',
+          items: {
+            $ref: '#/components/schemas/Artist',
+          },
+        },
+        albums: {
+          type: 'array',
+          items: {
+            $ref: '#/components/schemas/Album',
+          },
+        },
+        tracks: {
+          type: 'array',
+          items: {
+            $ref: '#/components/schemas/Track',
+          },
+        },
+      },
+    },
+  })
   findAll() {
     return this.favoritesService.findAll();
   }
 
   @Post(':entity/:id')
   @ApiOperation({
-    summary: 'add',
+    summary: 'add album/artist/track to favorite',
+  })
+  @ApiCreatedResponse({
+    description: 'Successful operation',
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad request. Id is invalid (not uuid)',
+  })
+  @ApiUnprocessableEntityResponse({
+    description: 'Not found',
   })
   Add(
     @Param('entity', new ParseEnumPipe(Entity)) entity: string,
@@ -59,9 +103,21 @@ export class FavoritesController {
   }
 
   @Delete(':entity/:id')
+  @ApiOperation({
+    summary: 'delete album/artist/track from favorite',
+  })
+  @ApiNoContentResponse({
+    description: 'Successful operation',
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad request. Id is invalid (not uuid)',
+  })
+  @ApiUnprocessableEntityResponse({
+    description: 'Not found',
+  })
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(
-    @Param('entity') entity: string,
+    @Param('entity', new ParseEnumPipe(Entity)) entity: string,
     @Param(
       'id',
       new ParseUUIDPipe({

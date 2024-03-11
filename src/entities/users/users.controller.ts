@@ -186,7 +186,6 @@ export class UsersController {
     }
 
     const result = this.usersService.update(id, updateUserDto);
-    console.log(result);
     if (!result) {
       throw new ForbiddenException('old password wrong');
     }
