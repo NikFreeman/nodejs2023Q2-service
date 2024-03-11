@@ -11,5 +11,5 @@ export class StoreService {
   static albums: IAlbum[] = [];
   static artists: IArtist[] = [];
   static tracks: ITrack[] = [];
-  static favortes: IFavorites[] = [];
+  static favorites: IFavorites = { albums: [], artists: [], tracks: [] };
 }

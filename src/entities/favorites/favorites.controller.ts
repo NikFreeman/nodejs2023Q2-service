@@ -1,34 +1,85 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Delete,
+  Post,
+  ParseUUIDPipe,
+  BadRequestException,
+  UnprocessableEntityException,
+  NotFoundException,
+  HttpCode,
+  HttpStatus,
+  ParseEnumPipe,
+} from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
-import { CreateFavoriteDto } from './dto/create-favorite.dto';
-import { UpdateFavoriteDto } from './dto/update-favorite.dto';
-
-@Controller('favorites')
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Entity } from 'src/interfaces/favorite';
+@ApiTags('Favorites')
+@Controller('favs')
 export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
-  @Post()
-  create(@Body() createFavoriteDto: CreateFavoriteDto) {
-    return this.favoritesService.create(createFavoriteDto);
-  }
-
   @Get()
+  @ApiOperation({
+    summary: 'Get favorites list',
+  })
   findAll() {
     return this.favoritesService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.favoritesService.findOne(+id);
+  @Post(':entity/:id')
+  @ApiOperation({
+    summary: 'add',
+  })
+  Add(
+    @Param('entity', new ParseEnumPipe(Entity)) entity: string,
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+        exceptionFactory: () => {
+          return new BadRequestException(
+            'Bad request. AlbumId is invalid (not uuid)',
+          );
+        },
+      }),
+    )
+    id: string,
+  ) {
+    const entitys = ['track', 'album', 'artist'];
+    console.log(entity, !entitys.includes(entity));
+    if (!entitys.includes(entity)) {
+      throw new UnprocessableEntityException('Bad request. Entity not defined');
+    }
+    const result = this.favoritesService.add(entity, id);
+    if (!result)
+      throw new UnprocessableEntityException('Bad request. Id not found');
+    return true;
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFavoriteDto: UpdateFavoriteDto) {
-    return this.favoritesService.update(+id, updateFavoriteDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.favoritesService.remove(+id);
+  @Delete(':entity/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  remove(
+    @Param('entity') entity: string,
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        version: '4',
+        exceptionFactory: () => {
+          return new BadRequestException(
+            'Bad request. AlbumId is invalid (not uuid)',
+          );
+        },
+      }),
+    )
+    id: string,
+  ) {
+    const entitys = ['track', 'album', 'artist'];
+    console.log(entity, !entitys.includes(entity));
+    if (!entitys.includes(entity)) {
+      throw new NotFoundException('Bad request. Entity not defined');
+    }
+    return this.favoritesService.remove(entity, id);
   }
 }
