@@ -8,16 +8,13 @@ import { Album } from './entities/album.entity';
 
 @Injectable()
 export class AlbumsService {
-  constructor(
-    private readonly helperService: HelpersService,
-    storeService: StoreService,
-  ) {}
+  constructor(private readonly helperService: HelpersService) {}
   create(createAlbumDto: CreateAlbumDto) {
     const id = this.helperService.getUUID();
     const artist = StoreService.artists.filter(
       (item) => item.id == createAlbumDto.artistId,
     );
-    console.log(createAlbumDto);
+
     const artistId = artist.length == 1 ? createAlbumDto.artistId : null;
     const createAlbum: IAlbum = new Album({
       id: id,
@@ -34,8 +31,8 @@ export class AlbumsService {
   }
 
   findOne(id: string) {
-    const [artist] = StoreService.albums.filter((artist) => artist.id == id);
-    return artist;
+    const [album] = StoreService.albums.filter((album) => album.id == id);
+    return album;
   }
 
   update(id: string, updateAlbumDto: UpdateAlbumDto) {
@@ -57,6 +54,9 @@ export class AlbumsService {
 
   remove(id: string) {
     StoreService.albums = StoreService.albums.filter((album) => album.id != id);
+    StoreService.tracks.forEach((track) => {
+      if (track.albumId == id) track.albumId = null;
+    });
     return;
   }
 }

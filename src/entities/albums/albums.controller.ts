@@ -46,7 +46,6 @@ export class AlbumsController {
     description: 'Bad request. body does not contain required fields',
   })
   create(@Body() createAlbumDto: CreateAlbumDto) {
-    console.log(createAlbumDto);
     return this.albumsService.create(createAlbumDto);
   }
 
@@ -84,7 +83,7 @@ export class AlbumsController {
         version: '4',
         exceptionFactory: () => {
           return new BadRequestException(
-            'Bad request. artistId is invalid (not uuid)',
+            'Bad request. AlbumId is invalid (not uuid)',
           );
         },
       }),
