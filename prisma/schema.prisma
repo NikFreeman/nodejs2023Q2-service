@@ -20,25 +20,52 @@ model User {
   version   Int
   createdAt DateTime @default(now())
   updatedAt DateTime
-
-  @@map("users")
 }
 
 model Artist {
-  id     String  @id @default(uuid()) @db.Uuid
-  name   String
-  grammy Boolean
-  albums Album[]
-
-  @@map("artists")
+  id             String          @id @default(uuid()) @db.Uuid
+  name           String
+  grammy         Boolean
+  albums         Album[]
+  Track          Track[]
+  FavoriteArtist FavoriteArtist?
 }
 
 model Album {
-  id       String  @id @default(uuid()) @db.Uuid
-  name     String
-  year     Int
-  artist   Artist? @relation(fields: [artistId], references: [id])
-  artistId String?
+  id            String         @id @default(uuid()) @db.Uuid
+  name          String
+  year          Int
+  artistId      String?        @unique @db.Uuid
+  FavoriteAlbum FavoriteAlbum?
+  Artist        Artist?        @relation(fields: [artistId], references: [id])
+  Track         Track?
+}
 
-  @@map("albums")
+model Track {
+  id            String         @id @default(uuid()) @db.Uuid
+  name          String
+  artistId      String?        @unique @db.Uuid
+  artists       Artist?        @relation(fields: [artistId], references: [id])
+  albumId       String?        @unique @db.Uuid
+  albums        Album?         @relation(fields: [albumId], references: [id])
+  duration      Int
+  FavoriteTrack FavoriteTrack?
+}
+
+model FavoriteArtist {
+  id       String  @id @default(uuid()) @db.Uuid
+  artistId String? @unique @db.Uuid
+  artist   Artist? @relation(fields: [artistId], references: [id])
+}
+
+model FavoriteAlbum {
+  id      String  @id @default(uuid()) @db.Uuid
+  albumId String? @unique @db.Uuid
+  album   Album?  @relation(fields: [albumId], references: [id])
+}
+
+model FavoriteTrack {
+  id      String @id @default(uuid()) @db.Uuid
+  trackId String @unique @db.Uuid
+  track   Track  @relation(fields: [trackId], references: [id])
 }
