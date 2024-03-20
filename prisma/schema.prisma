@@ -19,7 +19,7 @@ model User {
   password  String
   version   Int
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @default(now())
 }
 
 model Artist {
