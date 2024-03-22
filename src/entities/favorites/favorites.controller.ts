@@ -58,8 +58,8 @@ export class FavoritesController {
       },
     },
   })
-  findAll() {
-    return this.favoritesService.findAll();
+  async findAll() {
+    return await this.favoritesService.findAll();
   }
 
   @Post(':entity/:id')
@@ -75,7 +75,7 @@ export class FavoritesController {
   @ApiUnprocessableEntityResponse({
     description: 'Not found',
   })
-  Add(
+  async Add(
     @Param('entity', new ParseEnumPipe(Entity)) entity: string,
     @Param(
       'id',
@@ -95,10 +95,10 @@ export class FavoritesController {
     if (!entitys.includes(entity)) {
       throw new UnprocessableEntityException('Bad request. Entity not defined');
     }
-    const result = this.favoritesService.add(entity, id);
+    const result = await this.favoritesService.add(entity, id);
     if (!result)
       throw new UnprocessableEntityException('Bad request. Id not found');
-    return true;
+    return;
   }
 
   @Delete(':entity/:id')
@@ -115,7 +115,7 @@ export class FavoritesController {
     description: 'Not found',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(
+  async remove(
     @Param('entity', new ParseEnumPipe(Entity)) entity: string,
     @Param(
       'id',
@@ -135,6 +135,8 @@ export class FavoritesController {
     if (!entitys.includes(entity)) {
       throw new NotFoundException('Bad request. Entity not defined');
     }
-    return this.favoritesService.remove(entity, id);
+    const result = await this.favoritesService.remove(entity, id);
+    if (!result) throw new UnprocessableEntityException('Not found');
+    return;
   }
 }
