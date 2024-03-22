@@ -1,62 +1,67 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
-import { HelpersService } from 'src/shared/helpers/helpers.service';
-import { StoreService } from 'src/shared/store/store.service';
-import { IAlbum } from 'src/interfaces/album';
-import { Album } from './entities/album.entity';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AlbumsService {
-  constructor(private readonly helperService: HelpersService) {}
-  create(createAlbumDto: CreateAlbumDto) {
-    const id = this.helperService.getUUID();
-    const artist = StoreService.artists.filter(
-      (item) => item.id == createAlbumDto.artistId,
-    );
-
-    const artistId = artist.length == 1 ? createAlbumDto.artistId : null;
-    const createAlbum: IAlbum = new Album({
-      id: id,
-      name: createAlbumDto.name,
-      year: createAlbumDto.year,
-      artistId: artistId,
+  constructor(private prisma: PrismaService) {}
+  async create(createAlbumDto: CreateAlbumDto) {
+    const createdAlbum = await this.prisma.album.create({
+      data: {
+        ...createAlbumDto,
+      },
     });
-    StoreService.albums.push(createAlbum);
-    return createAlbum;
+
+    // const id = this.helperService.getUUID();
+    // const artist = StoreService.artists.filter(
+    //   (item) => item.id == createAlbumDto.artistId,
+    // );
+
+    // const artistId = artist.length == 1 ? createAlbumDto.artistId : null;
+    // const createAlbum: IAlbum = new Album({
+    //   id: id,
+    //   name: createAlbumDto.name,
+    //   year: createAlbumDto.year,
+    //   artistId: artistId,
+    // });
+    // StoreService.albums.push(createAlbum);
+    return createdAlbum;
   }
 
-  findAll() {
-    return StoreService.albums;
+  async findAll() {
+    return await this.prisma.album.findMany();
   }
 
-  findOne(id: string) {
-    const [album] = StoreService.albums.filter((album) => album.id == id);
+  async findOne(id: string) {
+    const album = await this.prisma.album.findUnique({ where: { id: id } });
     return album;
   }
 
-  update(id: string, updateAlbumDto: UpdateAlbumDto) {
-    const index = StoreService.albums.findIndex((album) => album.id == id);
-    if (index == -1) return false;
-    const { name, year, artistId } = updateAlbumDto;
-    const artist = StoreService.artists.filter((item) => item.id == artistId);
-    const updateArtistId = artist.length == 1 ? artistId : null;
-    const updatedAlbum: IAlbum = {
-      id,
-      name: name || StoreService.albums[index].name,
-      year: year !== undefined ? year : StoreService.albums[index].year,
-      artistId: updateArtistId,
-    };
+  async update(id: string, updateAlbumDto: UpdateAlbumDto) {
+    const album = await this.findOne(id);
+    if (!album) return false;
+    const updatedAlbum = await this.prisma.album.update({
+      where: { id: id },
+      data: { ...updateAlbumDto },
+    });
+    // const { name, year, artistId } = updateAlbumDto;
+    // const artist = StoreService.artists.filter((item) => item.id == artistId);
+    // const updateArtistId = artist.length == 1 ? artistId : null;
+    // const updatedAlbum: IAlbum = {
+    //   id,
+    //   name: name || StoreService.albums[index].name,
+    //   year: year !== undefined ? year : StoreService.albums[index].year,
+    //   artistId: updateArtistId,
+    // };
 
-    StoreService.albums[index] = updatedAlbum;
+    // StoreService.albums[index] = updatedAlbum;
     return updatedAlbum;
   }
 
-  remove(id: string) {
-    StoreService.albums = StoreService.albums.filter((album) => album.id != id);
-    StoreService.tracks.forEach((track) => {
-      if (track.albumId == id) track.albumId = null;
-    });
+  async remove(id: string) {
+    await this.prisma.album.delete({ where: { id: id } });
+
     return;
   }
 }

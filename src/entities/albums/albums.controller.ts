@@ -45,8 +45,8 @@ export class AlbumsController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Bad request. body does not contain required fields',
   })
-  create(@Body() createAlbumDto: CreateAlbumDto) {
-    return this.albumsService.create(createAlbumDto);
+  async create(@Body() createAlbumDto: CreateAlbumDto) {
+    return await this.albumsService.create(createAlbumDto);
   }
 
   @Get()
@@ -57,8 +57,8 @@ export class AlbumsController {
     description: 'Successful operation',
     type: [Album],
   })
-  findAll() {
-    return this.albumsService.findAll();
+  async findAll() {
+    return await this.albumsService.findAll();
   }
 
   @Get(':id')
@@ -76,7 +76,7 @@ export class AlbumsController {
   @ApiNotFoundResponse({
     description: 'Album was not found',
   })
-  findOne(
+  async findOne(
     @Param(
       'id',
       new ParseUUIDPipe({
@@ -90,7 +90,7 @@ export class AlbumsController {
     )
     id: string,
   ) {
-    const album = this.albumsService.findOne(id);
+    const album = await this.albumsService.findOne(id);
     if (!album) {
       throw new NotFoundException('Album not found');
     }
@@ -145,7 +145,7 @@ export class AlbumsController {
   @ApiNotFoundResponse({
     description: 'Album was not found',
   })
-  update(
+  async update(
     @Param(
       'id',
       new ParseUUIDPipe({
@@ -160,11 +160,11 @@ export class AlbumsController {
     id: string,
     @Body() updateAlbumDto: UpdateAlbumDto,
   ) {
-    const album = this.albumsService.findOne(id);
+    const album = await this.albumsService.findOne(id);
     if (!album) {
       throw new NotFoundException('Album not found');
     }
-    return this.albumsService.update(id, updateAlbumDto);
+    return await this.albumsService.update(id, updateAlbumDto);
   }
 
   @Delete(':id')
@@ -189,7 +189,7 @@ export class AlbumsController {
     description: 'Album not found',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(
+  async remove(
     @Param(
       'id',
       new ParseUUIDPipe({
@@ -198,10 +198,10 @@ export class AlbumsController {
     )
     id: string,
   ) {
-    const album = this.albumsService.findOne(id);
+    const album = await this.albumsService.findOne(id);
     if (!album) {
       throw new NotFoundException('Album not found');
     }
-    return this.albumsService.remove(id);
+    return await this.albumsService.remove(id);
   }
 }
