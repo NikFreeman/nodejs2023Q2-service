@@ -17,18 +17,18 @@ model User {
   id        String   @id @default(uuid()) @db.Uuid
   login     String
   password  String
-  version   Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  version   Int      @default(1)
+  createdAt DateTime @default(now()) @db.Timestamp(3)
+  updatedAt DateTime @default(now()) @db.Timestamp(3)
 }
 
 model Artist {
   id             String          @id @default(uuid()) @db.Uuid
   name           String
-  grammy         Boolean
+  grammy         Boolean         @default(false)
   albums         Album[]
-  Track          Track[]
-  FavoriteArtist FavoriteArtist?
+  track          Track[]
+  favoriteArtist FavoriteArtist?
 }
 
 model Album {
@@ -36,9 +36,9 @@ model Album {
   name          String
   year          Int
   artistId      String?        @unique @db.Uuid
-  FavoriteAlbum FavoriteAlbum?
-  Artist        Artist?        @relation(fields: [artistId], references: [id])
-  Track         Track?
+  favoriteAlbum FavoriteAlbum?
+  artist        Artist?        @relation(fields: [artistId], references: [id])
+  track         Track?
 }
 
 model Track {
@@ -49,23 +49,23 @@ model Track {
   albumId       String?        @unique @db.Uuid
   albums        Album?         @relation(fields: [albumId], references: [id])
   duration      Int
-  FavoriteTrack FavoriteTrack?
+  favoriteTrack FavoriteTrack?
 }
 
 model FavoriteArtist {
   id       String  @id @default(uuid()) @db.Uuid
   artistId String? @unique @db.Uuid
-  artist   Artist? @relation(fields: [artistId], references: [id])
+  artist   Artist? @relation(fields: [artistId], references: [id], onDelete: Cascade)
 }
 
 model FavoriteAlbum {
   id      String  @id @default(uuid()) @db.Uuid
   albumId String? @unique @db.Uuid
-  album   Album?  @relation(fields: [albumId], references: [id])
+  album   Album?  @relation(fields: [albumId], references: [id], onDelete: Cascade)
 }
 
 model FavoriteTrack {
   id      String @id @default(uuid()) @db.Uuid
   trackId String @unique @db.Uuid
-  track   Track  @relation(fields: [trackId], references: [id])
+  track   Track  @relation(fields: [trackId], references: [id], onDelete: Cascade)
 }
