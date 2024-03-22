@@ -44,8 +44,8 @@ export class TracksController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Bad request. body does not contain required fields',
   })
-  create(@Body() createTrackDto: CreateTrackDto) {
-    return this.tracksService.create(createTrackDto);
+  async create(@Body() createTrackDto: CreateTrackDto) {
+    return await this.tracksService.create(createTrackDto);
   }
 
   @Get()
@@ -56,8 +56,8 @@ export class TracksController {
     description: 'Successful operation',
     type: [Track],
   })
-  findAll() {
-    return this.tracksService.findAll();
+  async findAll() {
+    return await this.tracksService.findAll();
   }
 
   @Get(':id')
@@ -75,7 +75,7 @@ export class TracksController {
   @ApiNotFoundResponse({
     description: 'Album was not found',
   })
-  findOne(
+  async findOne(
     @Param(
       'id',
       new ParseUUIDPipe({
@@ -89,7 +89,7 @@ export class TracksController {
     )
     id: string,
   ) {
-    const track = this.tracksService.findOne(id);
+    const track = await this.tracksService.findOne(id);
     if (!track) {
       throw new NotFoundException('Track not found');
     }
@@ -150,7 +150,7 @@ export class TracksController {
   @ApiNotFoundResponse({
     description: 'Track was not found',
   })
-  update(
+  async update(
     @Param(
       'id',
       new ParseUUIDPipe({
@@ -165,11 +165,11 @@ export class TracksController {
     id: string,
     @Body() updateTrackDto: UpdateTrackDto,
   ) {
-    const track = this.tracksService.findOne(id);
+    const track = await this.tracksService.findOne(id);
     if (!track) {
       throw new NotFoundException('Track not found');
     }
-    return this.tracksService.update(id, updateTrackDto);
+    return await this.tracksService.update(id, updateTrackDto);
   }
 
   @Delete(':id')
@@ -194,7 +194,7 @@ export class TracksController {
     description: 'Track not found',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(
+  async remove(
     @Param(
       'id',
       new ParseUUIDPipe({
@@ -203,10 +203,10 @@ export class TracksController {
     )
     id: string,
   ) {
-    const track = this.tracksService.findOne(id);
+    const track = await this.tracksService.findOne(id);
     if (!track) {
       throw new NotFoundException('Track not found');
     }
-    return this.tracksService.remove(id);
+    return await this.tracksService.remove(id);
   }
 }
