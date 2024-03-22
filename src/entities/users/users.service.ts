@@ -1,8 +1,6 @@
-//import { StoreService } from './../../shared/store/store.service';
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User, Prisma, PrismaClient } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -10,14 +8,12 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    console.log(createUserDto);
-    const userCreate = this.prisma.user.create({
+    const userCreate = await this.prisma.user.create({
       data: {
         version: 1,
         ...createUserDto,
       },
     });
-    console.log(userCreate);
     return userCreate;
   }
 
@@ -32,7 +28,6 @@ export class UsersService {
 
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.prisma.user.findUnique({ where: { id: id } });
-    console.log('update->', user);
 
     const { oldPassword, newPassword } = updateUserDto;
     if (user.password == oldPassword) {
@@ -50,8 +45,7 @@ export class UsersService {
   }
 
   async remove(id: string) {
-    const user = await this.prisma.user.delete({ where: { id: id } });
-    console.log('delete->', user);
+    await this.prisma.user.delete({ where: { id: id } });
     return;
   }
 }

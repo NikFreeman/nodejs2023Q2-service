@@ -2,7 +2,8 @@ import { IUser } from 'src/interfaces/user';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { IsInt, IsString, IsUUID } from 'class-validator';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Exclude } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
+import { User as UserPrisma } from '@prisma/client';
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 
 export class User implements IUser {
@@ -17,7 +18,6 @@ export class User implements IUser {
   login: string;
   @ApiHideProperty()
   @IsString()
-  @Exclude()
   password: string;
   @ApiProperty({ description: 'User version', required: false, example: '1' })
   @IsInt()
@@ -40,4 +40,17 @@ export class User implements IUser {
   constructor(partial: Partial<IUser>) {
     Object.assign(this, partial);
   }
+}
+
+export class UserResponseDto implements UserPrisma {
+  id: string;
+  login: string;
+  version: number;
+  @Transform(({ value }) => new Date(value).getTime())
+  createdAt: Date;
+  @Transform(({ value }) => new Date(value).getTime())
+  updatedAt: Date;
+
+  @Exclude()
+  password: string;
 }

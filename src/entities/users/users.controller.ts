@@ -30,10 +30,12 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { User } from './entities/user.entity';
+import { User, UserResponseDto } from './entities/user.entity';
+import { plainToInstance } from 'class-transformer';
 
 @ApiTags('Users')
 @Controller('user')
+@UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -50,9 +52,9 @@ export class UsersController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Bad request. body does not contain required fields',
   })
-  @UseInterceptors(ClassSerializerInterceptor)
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    const user = await this.usersService.create(createUserDto);
+    return plainToInstance(UserResponseDto, user);
   }
 
   @Get()
@@ -63,9 +65,9 @@ export class UsersController {
     description: 'Successful operation',
     type: [User],
   })
-  @UseInterceptors(ClassSerializerInterceptor)
-  findAll() {
-    return this.usersService.findAll();
+  async findAll() {
+    const users = await this.usersService.findAll();
+    return plainToInstance(UserResponseDto, users);
   }
 
   @Get(':id')
@@ -83,8 +85,7 @@ export class UsersController {
   @ApiNotFoundResponse({
     description: 'User not found',
   })
-  @UseInterceptors(ClassSerializerInterceptor)
-  findOne(
+  async findOne(
     @Param(
       'id',
       new ParseUUIDPipe({
@@ -99,12 +100,12 @@ export class UsersController {
     )
     id: string,
   ) {
-    const user = this.usersService.findOne(id);
+    const user = await this.usersService.findOne(id);
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return user;
+    return plainToInstance(UserResponseDto, user);
   }
 
   @Put(':id')
@@ -163,7 +164,7 @@ export class UsersController {
     description: 'oldPassword is wrong',
   })
   @UseInterceptors(ClassSerializerInterceptor)
-  update(
+  async update(
     @Param(
       'id',
       new ParseUUIDPipe({
@@ -179,17 +180,16 @@ export class UsersController {
     id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    const user = this.usersService.findOne(id);
-
+    const user = await this.usersService.findOne(id);
     if (!user) {
       throw new NotFoundException(HttpStatus.NOT_FOUND, 'User not found');
     }
 
-    const result = this.usersService.update(id, updateUserDto);
+    const result = await this.usersService.update(id, updateUserDto);
     if (!result) {
       throw new ForbiddenException('old password wrong');
     }
-    return result;
+    return plainToInstance(UserResponseDto, result);
   }
 
   @Delete(':id')
@@ -214,7 +214,7 @@ export class UsersController {
     description: 'User not found',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(
+  async remove(
     @Param(
       'id',
       new ParseUUIDPipe({
@@ -223,7 +223,7 @@ export class UsersController {
     )
     id: string,
   ) {
-    const user = this.usersService.findOne(id);
+    const user = await this.usersService.findOne(id);
 
     if (!user) {
       throw new NotFoundException(HttpStatus.NOT_FOUND, 'User not found');
