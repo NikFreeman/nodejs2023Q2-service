@@ -45,8 +45,8 @@ export class ArtistsController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Bad request. body does not contain required fields',
   })
-  create(@Body() createArtistDto: CreateArtistDto) {
-    return this.artistsService.create(createArtistDto);
+  async create(@Body() createArtistDto: CreateArtistDto) {
+    return await this.artistsService.create(createArtistDto);
   }
 
   @Get()
@@ -57,8 +57,8 @@ export class ArtistsController {
     description: 'Successful operation',
     type: [Artist],
   })
-  findAll() {
-    return this.artistsService.findAll();
+  async findAll() {
+    return await this.artistsService.findAll();
   }
 
   @Get(':id')
@@ -76,7 +76,7 @@ export class ArtistsController {
   @ApiNotFoundResponse({
     description: 'Artist not found',
   })
-  findOne(
+  async findOne(
     @Param(
       'id',
       new ParseUUIDPipe({
@@ -90,7 +90,7 @@ export class ArtistsController {
     )
     id: string,
   ) {
-    const artist = this.artistsService.findOne(id);
+    const artist = await this.artistsService.findOne(id);
     if (!artist) {
       throw new NotFoundException('Artist not found');
     }
@@ -139,7 +139,7 @@ export class ArtistsController {
   @ApiNotFoundResponse({
     description: 'Artist not found',
   })
-  update(
+  async update(
     @Param(
       'id',
       new ParseUUIDPipe({
@@ -154,11 +154,11 @@ export class ArtistsController {
     id: string,
     @Body() updateArtistDto: UpdateArtistDto,
   ) {
-    const artist = this.artistsService.findOne(id);
+    const artist = await this.artistsService.findOne(id);
     if (!artist) {
       throw new NotFoundException('Artist not found');
     }
-    return this.artistsService.update(id, updateArtistDto);
+    return await this.artistsService.update(id, updateArtistDto);
   }
 
   @Delete(':id')
@@ -183,7 +183,7 @@ export class ArtistsController {
     description: 'Artist not found',
   })
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(
+  async remove(
     @Param(
       'id',
       new ParseUUIDPipe({
@@ -192,11 +192,11 @@ export class ArtistsController {
     )
     id: string,
   ) {
-    const artist = this.artistsService.findOne(id);
+    const artist = await this.artistsService.findOne(id);
 
     if (!artist) {
       throw new NotFoundException(HttpStatus.NOT_FOUND, 'Artist not found');
     }
-    return this.artistsService.remove(id);
+    return await this.artistsService.remove(id);
   }
 }
