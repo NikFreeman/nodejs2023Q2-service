@@ -1,1 +1,7 @@
-FROM Node:20-alpine
+FROM node:20.11.1-alpine3.19 as builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm i
+COPY . .
+EXPOSE ${PORT}
+
