@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  login     String
+  password  String
+  version   Int      @default(1)
+  createdAt DateTime @default(now()) @db.Timestamp(3)
+  updatedAt DateTime @default(now()) @db.Timestamp(3)
+}
+
+model Artist {
+  id             String          @id @default(uuid()) @db.Uuid
+  name           String
+  grammy         Boolean         @default(false)
+  albums         Album[]
+  track          Track[]
+  favoriteArtist FavoriteArtist?
+}
+
+model Album {
+  id            String         @id @default(uuid()) @db.Uuid
+  name          String
+  year          Int
+  artistId      String?        @unique @db.Uuid
+  favoriteAlbum FavoriteAlbum?
+  artist        Artist?        @relation(fields: [artistId], references: [id])
+  track         Track?
+}
+
+model Track {
+  id            String         @id @default(uuid()) @db.Uuid
+  name          String
+  artistId      String?        @unique @db.Uuid
+  artists       Artist?        @relation(fields: [artistId], references: [id])
+  albumId       String?        @unique @db.Uuid
+  albums        Album?         @relation(fields: [albumId], references: [id])
+  duration      Int
+  favoriteTrack FavoriteTrack?
+}
+
+model FavoriteArtist {
+  id       String  @id @default(uuid()) @db.Uuid
+  artistId String? @unique @db.Uuid
+  artist   Artist? @relation(fields: [artistId], references: [id], onDelete: Cascade)
+}
+
+model FavoriteAlbum {
+  id      String  @id @default(uuid()) @db.Uuid
+  albumId String? @unique @db.Uuid
+  album   Album?  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+}
+
+model FavoriteTrack {
+  id      String @id @default(uuid()) @db.Uuid
+  trackId String @unique @db.Uuid
+  track   Track  @relation(fields: [trackId], references: [id], onDelete: Cascade)
+}

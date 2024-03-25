@@ -1,0 +1,57 @@
+version: '3.9'
+
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: src/db/Dockerfile
+    image: postgres-db
+    container_name: hls_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - hls-postgres:/var/lib/postgresql/data
+    networks:
+      - hls-network
+    restart: unless-stopped
+  hls_service:
+    container_name: hls_service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hls_service:0.1
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - PORT=${PORT}
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - ${PORT}:${PORT}
+    develop:
+      watch:
+        - path: ./package.json
+          action: rebuild
+        - path: src/
+          target: /app/src
+          ignore:
+            - node_modules/
+          action: sync
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    networks:
+      - hls-network
+    volumes:
+      - hls-service:/app/node_modules
+    restart: unless-stopped
+networks:
+  hls-network:
+volumes:
+  hls-postgres:
+  hls-service:
