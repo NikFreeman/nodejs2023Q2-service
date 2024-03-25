@@ -1,6 +1,4 @@
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Album } from '../albums/entities/album.entity';
-import { Artist } from '../artists/entities/artist.entity';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

@@ -163,7 +163,6 @@ export class UsersController {
   @ApiForbiddenResponse({
     description: 'oldPassword is wrong',
   })
-  @UseInterceptors(ClassSerializerInterceptor)
   async update(
     @Param(
       'id',
