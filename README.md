@@ -16,12 +16,15 @@ git clone {repository URL}
 ```
 npm install
 ```
-
 ## Running application
 
+1. Create `.env` file in root folder. You can just rename `.env.example`
+2. Specify `PORT`. (4000 as default)
+
 ```
-npm start
+npm run docker:watch
 ```
+
 
 After starting the app on port (4000 as default) you can open
 
@@ -33,32 +36,10 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
 After application running open new terminal and enter:
 
-To run all tests without authorization
-```
-npm run test:not-auth
-```
-
 ```
 npm run test
 ```
 
-To run only one of all test suites
-
-```
-npm run test -- <path to suite>
-```
-
-To run all test with authorization
-
-```
-npm run test:auth
-```
-
-To run only specific test suite with authorization
-
-```
-npm run test:auth -- <path to suite>
-```
 
 ### Auto-fix and format
 
