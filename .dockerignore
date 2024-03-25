@@ -3,3 +3,9 @@
 dist
 node_modules
 doc
+Dockerfile
+build
+test
+package.json
+.cache
+jest.config.json

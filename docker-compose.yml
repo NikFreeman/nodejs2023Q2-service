@@ -2,7 +2,10 @@ version: '3.9'
 
 services:
   postgres:
-    image: postgres:16.2-alpine3.19
+    build:
+      context: .
+      dockerfile: src/db/Dockerfile
+    image: postgres-db
     container_name: hls_db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -26,21 +29,29 @@ services:
       - POSTGRES_PORT=${POSTGRES_PORT}
       - POSTGRES_HOST=${POSTGRES_HOST}
       - PORT=${PORT}
-      - DATABASE_URL=${DATABASE_URL}      
+      - DATABASE_URL=${DATABASE_URL}
     ports:
       - ${PORT}:${PORT}
-    command: npm run start:docker
-    volumes:
-      - hls-node_modules:/app/node_modules
+    develop:
+      watch:
+        - path: ./package.json
+          action: rebuild
+        - path: src/
+          target: /app/src
+          ignore:
+            - node_modules/
+          action: sync
     env_file:
       - .env
     depends_on:
       - postgres
     networks:
       - hls-network
+    volumes:
+      - hls-service:/app/node_modules
     restart: unless-stopped
 networks:
   hls-network:
 volumes:
   hls-postgres:
-  hls-node_modules:
+  hls-service:
