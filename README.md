@@ -39,7 +39,13 @@ After application running open new terminal and enter:
 ```
 npm run test
 ```
+## Vulnerability
+You can scan images for vulnerability by
+```
+npm run scan:docker
+```
 
+It works only for windows users with latest docker desktop.
 
 ### Auto-fix and format
 
