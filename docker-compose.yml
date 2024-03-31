@@ -7,6 +7,8 @@ services:
       dockerfile: src/db/Dockerfile
     image: postgres-db
     container_name: hls_db
+    ports:
+      - 5555:5432
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
