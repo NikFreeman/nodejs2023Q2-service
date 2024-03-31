@@ -9,6 +9,7 @@ import { ArtistsModule } from './entities/artists/artists.module';
 import { TracksModule } from './entities/tracks/tracks.module';
 import { FavoritesModule } from './entities/favorites/favorites.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './entities/auth/auth.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PrismaModule } from './prisma/prisma.module';
     TracksModule,
     FavoritesModule,
     PrismaModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
