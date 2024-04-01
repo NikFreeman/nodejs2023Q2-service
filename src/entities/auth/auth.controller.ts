@@ -95,6 +95,7 @@ export class AuthController {
     status: HttpStatus.FORBIDDEN,
     description: 'Refresh token is invalid or expired',
   })
+  @HttpCode(HttpStatus.OK)
   @Public()
   async refresh(@Body() { refreshToken }: RefreshTokenDto) {
     try {

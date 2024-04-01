@@ -44,7 +44,7 @@ export class AuthService {
       const user = await this.usersService.findOne(userId);
       if (user)
         if (user.login !== login) {
-          throw new Error("Bad tocken. Login doesn't match with userId");
+          throw new Error("Bad token. Login doesn't match with userId");
         }
       return await this.generateTokens({ login, userId });
     } catch (error) {
