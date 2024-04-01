@@ -16,44 +16,36 @@ git clone {repository URL}
 ```
 npm install
 ```
-
 ## Running application
 
+1. Create `.env` file in root folder. You can just rename `.env.example`
+2. Specify `PORT`. (4000 as default)
+
 ```
-npm start
+npm run docker:watch
 ```
 
+
 After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
+
+in your browser OpenAPI documentation by typing http://localhost:4000/api/
+
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
 ## Testing
 
 After application running open new terminal and enter:
 
-To run all tests without authorization
-
-```
-npm run test
-```
-
-To run only one of all test suites
-
-```
-npm run test -- <path to suite>
-```
-
-To run all test with authorization
-
 ```
 npm run test:auth
 ```
-
-To run only specific test suite with authorization
-
+## Vulnerability
+You can scan images for vulnerability by
 ```
-npm run test:auth -- <path to suite>
+npm run scan:docker
 ```
+
+It works only for windows users with latest docker desktop.
 
 ### Auto-fix and format
 
