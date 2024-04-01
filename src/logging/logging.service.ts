@@ -1,144 +1,149 @@
 import { ConsoleLogger, Injectable, LoggerService } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import path from 'node:path';
+import * as path from 'node:path';
 import { stat, appendFile } from 'node:fs/promises';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { cwd } from 'node:process';
 
 @Injectable()
 export class LoggingService extends ConsoleLogger implements LoggerService {
-  readonly LOGGING_LEVELS = [
-    'log',
-    'fatal',
-    'error',
-    'warn',
-    'debug',
-    'verbose',
-  ];
+  readonly LOGGING_LEVELS = {
+    error: 0,
+    warn: 1,
+    log: 2,
+    debug: 3,
+    verbose: 4,
+  };
+  readonly DEFAULT_LOGGING_LEVEL = 0;
   readonly KiB = 1024;
   readonly DEFAULT_FILE_SIZE = 50;
   readonly LOG_EXTENSION = '.log';
+  readonly ERROR_EXTENSION = '.error';
   readonly LOGGING_DIRECTORY = 'logs';
-  private logLevel: Array<string>;
+  private logLevel: number;
   private logFileSize: number;
-  private loggingDirectory: string;
   private logFile: string;
-
-  private shouldCreateNewFileLog = false;
+  private errFile: string;
 
   constructor(private readonly configService: ConfigService) {
     super();
 
     this.logLevel =
       configService.get('LOGGING_LEVEL') !== undefined
-        ? JSON.parse(configService.get('LOGGING_LEVEL'))
-        : this.LOGGING_LEVELS;
+        ? parseInt(configService.get('LOGGING_LEVEL'))
+        : this.DEFAULT_LOGGING_LEVEL;
 
     this.logFileSize =
       parseInt(configService.get('LOG_FILE_SIZE')) || this.DEFAULT_FILE_SIZE;
-    this.loggingDirectory = this.normalizePath(this.LOGGING_DIRECTORY);
 
-    this.logFile =
-      new Date().toISOString().replaceAll(':', '-') + this.LOG_EXTENSION;
+    this.logFile = this.newFilename(this.LOG_EXTENSION);
+    this.errFile = this.newFilename(this.ERROR_EXTENSION);
 
-    mkdirSync(this.loggingDirectory, { recursive: true });
-    writeFileSync(path.join(this.loggingDirectory, this.logFile), '');
+    mkdirSync(this.LOGGING_DIRECTORY, { recursive: true });
+    writeFileSync(path.join(this.LOGGING_DIRECTORY, this.logFile), '');
+    writeFileSync(path.join(this.LOGGING_DIRECTORY, this.errFile), '');
   }
 
   log(message: any) {
     const MARKER = 'log';
-    if (this.logLevel.includes(MARKER)) {
+    if (this.logLevel >= this.LOGGING_LEVELS.log) {
       super.log(message);
-      this.loggingMessage(message, MARKER);
+      this.logToFile(this.formattedMessage(message, MARKER));
     }
   }
 
   error(message: any, context = '') {
     const MARKER = 'error';
-    if (this.logLevel.includes(MARKER)) {
+    if (this.logLevel >= this.LOGGING_LEVELS.error) {
       super.error(message, context);
-      this.loggingMessage(message, MARKER);
+      const errorMessage = this.formattedMessage(message, MARKER);
+      this.logToFile(errorMessage);
+      this.errToFile(errorMessage, context);
     }
   }
 
   warn(message: any) {
     const MARKER = 'warn';
-    if (this.logLevel.includes(MARKER)) {
+    if (this.logLevel >= this.LOGGING_LEVELS.warn) {
       super.warn(message);
-      this.loggingMessage(message, MARKER);
+      this.logToFile(this.formattedMessage(message, MARKER));
     }
   }
 
   debug(message: any) {
     const MARKER = 'debug';
-    if (this.logLevel.includes(MARKER)) {
+    if (this.logLevel >= this.LOGGING_LEVELS.debug) {
       super.debug(message);
-      this.loggingMessage(message, MARKER);
+      this.logToFile(this.formattedMessage(message, MARKER));
     }
   }
-  fatal(message: any, context?: string) {
-    const MARKER = 'fatal';
 
-    if (this.logLevel.includes(MARKER)) {
-      super.fatal(message, context);
-      this.loggingMessage(message, MARKER);
-    }
-  }
   verbose(message: any) {
     const MARKER = 'verbose';
-    if (this.logLevel.includes(MARKER)) {
+    if (this.logLevel >= this.LOGGING_LEVELS.verbose) {
       super.verbose(message);
-      this.loggingMessage(message, MARKER);
+      this.logToFile(this.formattedMessage(message, MARKER));
     }
   }
 
-  private loggingMessage(message: string, MARKER: string) {
-    const formattedMsg =
+  private formattedMessage(message: string, MARKER: string) {
+    const result =
       new Date().toISOString() +
       ' ' +
-      MARKER.toLocaleUpperCase +
-      ' ' +
+      MARKER.toLocaleUpperCase() +
+      ': ' +
       message +
       '\n';
-    this.logToFile(formattedMsg);
+    return result;
   }
 
-  private normalizePath(target: string) {
-    return path.isAbsolute(target)
-      ? path.normalize(target)
-      : path.join(cwd(), target);
+  private newFilename(extension: string) {
+    return new Date().toISOString().replaceAll(':', '-') + extension;
   }
 
-  private async checkFileLog(target: string) {
-    if (this.shouldCreateNewFileLog) {
-      return false;
-    }
-    let fileSizeByte: number;
+  private async checkFile(fileName: string) {
+    const extension = path.extname(fileName);
+    const target = path.join(this.LOGGING_DIRECTORY, fileName);
+
     try {
-      fileSizeByte = (await stat(target)).size;
+      const fileSizeByte = (await stat(target)).size;
+      if (fileSizeByte > this.logFileSize * this.KiB) {
+        if (extension === this.LOG_EXTENSION) {
+          this.logFile = this.newFilename(this.LOG_EXTENSION);
+        }
+        if (extension === this.ERROR_EXTENSION) {
+          this.errFile = this.newFilename(this.ERROR_EXTENSION);
+        }
+      }
     } catch (error) {
-      this.shouldCreateNewFileLog = true;
-    }
-    if (fileSizeByte > this.logFileSize * this.KiB) {
-      this.shouldCreateNewFileLog = true;
+      if (extension === this.LOG_EXTENSION) {
+        this.logFile = this.newFilename(this.LOG_EXTENSION);
+      }
+      if (extension === this.ERROR_EXTENSION) {
+        this.errFile = this.newFilename(this.ERROR_EXTENSION);
+      }
     }
   }
-
   private async logToFile(message: string) {
-    let targetPath = path.join(this.loggingDirectory, this.logFile);
-    await this.checkFileLog(targetPath);
-    if (this.shouldCreateNewFileLog) {
-      this.logFile =
-        new Date().toISOString().replaceAll(':', '-') + this.LOG_EXTENSION;
-      targetPath = path.join(this.loggingDirectory, this.logFile);
-      this.shouldCreateNewFileLog = false;
-    }
+    await this.checkFile(this.logFile);
+    const targetPath = path.join(this.LOGGING_DIRECTORY, this.logFile);
+
     try {
       await this.appendToFile(targetPath, message);
     } catch (error) {
       console.error('Error on storing logs: ', error);
     }
-    process.nextTick(() => (this.shouldCreateNewFileLog = false));
+  }
+
+  private async errToFile(message: string, context = '') {
+    await this.checkFile(this.errFile);
+    const targetPath = path.join(this.LOGGING_DIRECTORY, this.errFile);
+
+    try {
+      await this.appendToFile(targetPath, message);
+      await this.appendToFile(targetPath, context);
+    } catch (error) {
+      console.error('Error on storing logs: ', error);
+    }
   }
 
   private async appendToFile(target: string, message: string) {
