@@ -37,7 +37,7 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
 After application running open new terminal and enter:
 
 ```
-npm run test
+npm run test:auth
 ```
 ## Vulnerability
 You can scan images for vulnerability by

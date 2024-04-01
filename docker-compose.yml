@@ -51,9 +51,11 @@ services:
       - hls-network
     volumes:
       - hls-service:/app/node_modules
+      - hls-logs:/app/logs
     restart: unless-stopped
 networks:
   hls-network:
 volumes:
   hls-postgres:
   hls-service:
+  hls-logs:
